@@ -1,0 +1,37 @@
+---
+title: "BMI Example"
+author: "Michael Sachs"
+date: "March 31, 2015"
+output: 
+    word_document
+---
+
+Let's read in the BMI dataset and see what we have to work with. Make sure it is in the same directory as this .Rmd file!
+
+```{r setup}
+bmi <- read.csv("BMI.CSV", stringsAsFactors = FALSE)
+head(bmi)
+summary(bmi)
+```
+
+Let's examine the relationship between gender and pack years of smoking. 
+
+```{r ttest, comment = NA}
+with(bmi, t.test(packyrs ~ gender))
+```
+
+Wow, men tend to smoke much more than women. What is the distribution of pack years of smoking?
+
+
+```{r smkplot, warning = FALSE, message = FALSE}
+library(ggplot2)
+ggplot(bmi, aes(x = packyrs)) + geom_bar(stat = "bin")
+ggplot(bmi, aes(x = packyrs, fill = gender)) + geom_density(alpha = .5)
+```
+
+
+It appears that there are more women that do not smoke at all (packyears = 0). The proportion of women who do not smoke is `r round(mean(subset(bmi, gender == "FEMALE")$packyears == 0, na.rm = TRUE), 2)`.
+
+```{r table, results = 'asis'}
+with(bmi, knitr::kable(table(gender, smoke), caption = "Cross-tabulation of gender by smoking status in the BMI dataset. "))
+```
