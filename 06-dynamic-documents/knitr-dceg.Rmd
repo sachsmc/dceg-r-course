@@ -1,0 +1,187 @@
+---
+title: "Reproducible Analyses with knitr and rmarkdown"
+author: "Michael Sachs"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  ioslides_presentation:
+    widescreen: true
+---
+
+# Introduction
+
+## Reproducibility
+
+![nature1](img/nature1.png)
+
+
+## At the lab?
+
+![lab1](img/lab1.png)
+
+## Where do we fit in? 
+
+![knit-flow3](img/repro-flow3.png)
+
+## Data analysis
+
+![analysis](img/analysis.png)
+
+Goal: code + prose = report
+
+## Solution
+
+- Cut and paste for report production is not a viable method
+    + tedious
+    + slow
+    + error-prone
+- Incorporate analysis code into text documents
+    + `knit` to create results
+    + results get incorporated into document
+    + post-process to get any type of output format
+- Literate documents
+    + R Code creates results to inform report
+    + Prose surrounding code informs analysis
+    
+## How? Markdown.
+
+![markdown](img/mark1.png)
+
+## Contrast with html
+
+![ht](img/html.png)
+
+## ... and tex
+
+![tex](img/tex.png)
+
+## Incorporating code chunks
+
+```{r setup, include=FALSE}
+library(stringr)
+library(knitr)
+opts_chunk$set(tidy = FALSE)
+
+knit_hooks$set(source = function(x, options){
+  if (!is.null(options$verbatim) && options$verbatim){
+    opts = gsub(",\\s*verbatim\\s*=\\s*TRUE\\s*", "", options$params.src)
+    bef = sprintf('\n\n    ```{r %s}\n', opts, "\n")
+    stringr::str_c(
+      bef, 
+      knitr:::indent_block(paste(x, collapse = '\n'), "    "), 
+      "\n    ```\n"
+    )
+  } else {
+    stringr::str_c("\n\n```", tolower(options$engine), "\n", 
+      paste(x, collapse = '\n'), "\n```\n\n"
+    )
+  }
+})
+```
+
+Three backticks:
+
+
+```{r my-first-chunk, results='asis', verbatim = TRUE} 
+## code goes in here and gets evaluated
+```
+
+See http://yihui.name/knitr/options#chunk_options for all available options. 
+
+Inline code uses single backticks
+
+Here I am using `` `r '\x60r rnorm(1)\x60'` `` to generate a random digit: `r rnorm(1)`. 
+
+## Try it
+
+- Open Rstudio
+- Click New > Rmarkdown
+- Select output format
+
+#### Examine the markdown prose and the code.
+#### What do you expect the output to look like?
+
+- Click `knit`
+- What do you get?
+
+## How it works: knitr
+
+Code chunks are evaluated sequentially the same, fresh R session:
+
+![rmdtomd](img/rmdtomd.png)
+
+## How it works: pandoc
+
+- Pandoc converts the markdown format to some other document type: 
+     + Word
+     + Html
+     + Pdf
+     + ...
+- Templates and output formats for specific uses:
+    + Beamer slideshows
+    + ioslides presentations
+    + Tufte-style handouts
+
+## Caveats
+
+- Markdown is minimalistic
+- Easy to write and read
+- Not complex or precise enough for __complete__ control over output
+- How much precision do you need? 
+
+rmarkdown + knitr is designed to _quickly_ and _simply_ generate analytic reports with minimal markup
+
+## Markdown specs
+
+- Paragraphs, `# headers, ## subheader, etc`, `> blockquotes`
+- Emphasis, `_italics_, *italics*, __bold__, **bold**`
+- Images/links: `![name](pathtoimage)`, `[text](link)`
+- Lists/ordered lists
+- Code chunks
+- Latex equations: `$\sum_{i=1}^nX_i/n$` = $\sum_{i=1}^nX_i/n$
+- Tables
+- Citations: `[@citekey]`, bibtex, endnote, others supported
+
+
+## Front matter
+
+- Metadata
+- Document types
+- Other options
+    + Default figure size, table of contents, theme
+    + See http://rmarkdown.rstudio.com/ for complete documentation
+
+```
+---
+title: "Reproducible Analyses with knitr and rmarkdown"
+author: "Michael Sachs"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  ioslides_presentation:
+    widescreen: true
+---
+```
+
+
+## Figure options
+
+The important ones:
+
+- `fig_width`, `fig_height`, in inches. Can also be set globally.
+- `fig_align`, left, right or center
+
+Other options
+
+- `include = FALSE` evaluates code but doesn't include anything
+- `echo = FALSE` don't display results
+- `warning = FALSE` don't display warnings
+- `cache = TRUE` cache results for long-running stuff
+
+## Resources
+
+ Topic | Link 
+ ------|------
+KBroman's UWisc Class | https://kbroman.github.io/Tools4RR/pages/schedule.html
+Knitr homepage | http://yihui.name/knitr/
+rmarkdown documentation | http://rmarkdown.rstudio.com/
+Another knitr tutorial | http://sachsmc.github.io/knit-git-markr-guide
+Pandoc reference | http://johnmacfarlane.net/pandoc/
