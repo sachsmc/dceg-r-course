@@ -1,10 +1,10 @@
 ---
 title: "Reproducible Analyses with knitr and rmarkdown"
 author: "Michael Sachs"
-date: 'April 1, 2015'
+date: "March 31, 2015"
 output:
-  ioslides_presentation: 
-      widescreen: true
+  ioslides_presentation:
+    widescreen: true
 ---
 
 # Introduction
@@ -56,41 +56,35 @@ Goal: code + prose = report
 
 ## Incorporating code chunks {.smaller}
 
-```{r setup, include=FALSE}
-library(stringr)
-library(knitr)
 
-knit_hooks$set(source = function(x, options){
-  if (!is.null(options$verbatim) && options$verbatim){
-    opts = gsub(",\\s*verbatim\\s*=\\s*TRUE\\s*", "", options$params.src)
-    bef = sprintf('\n\n    ```{r %s}\n', opts, "\n")
-    stringr::str_c(
-      bef, 
-      knitr:::indent_block(paste(x, collapse = '\n'), "    "), 
-      "\n    ```\n"
-    )
-  } else {
-    stringr::str_c("\n\n```", tolower(options$engine), "\n", 
-      paste(x, collapse = '\n'), "\n```\n\n"
-    )
-  }
-})
-```
 
 Three backticks, each chunk needs a unique name:
 
-```{r my-first-chunk, verbatim = TRUE} 
-## code goes in here and gets evaluated
-t.test(mpg ~ vs, data = mtcars)
-```
 
-## Inline code
+    ```{r my-first-chunk}
+    ## code goes in here and gets evaluated
+    t.test(mpg ~ vs, data = mtcars)
+    ```
+
+```
+## 
+## 	Welch Two Sample t-test
+## 
+## data:  mpg by vs
+## t = -4.6671, df = 22.716, p-value = 0.0001098
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  -11.462508  -4.418445
+## sample estimates:
+## mean in group 0 mean in group 1 
+##        16.61667        24.55714
+```
 
 Inline code uses single backticks
 
-The mean mpg is `` `r '\x60r round(mean(mtcars$mpg), 2)\x60'` ``. 
+The mean mpg is `` `r mean(mtcars$mpg)` ``. 
 
-The mean mpg is `r round(mean(mtcars$mpg), 2)`. 
+The mean mpg is 20.090625. 
 
 ## Try it
 
@@ -157,7 +151,7 @@ rmarkdown + knitr is designed to _quickly_ and _simply_ generate analytic report
 ---
 title: "Reproducible Analyses with knitr and rmarkdown"
 author: "Michael Sachs"
-date: "`r format(Sys.Date(), '%B %d, %Y')`"
+date: "March 31, 2015"
 output:
   ioslides_presentation:
     widescreen: true
@@ -173,39 +167,53 @@ output:
 
 Default: `results = 'markup'`
 
-```{r markup, results = 'markup', verbatim = TRUE} 
-head(mtcars, 4)
+
+    ```{r markup, results = 'markup'}
+    head(mtcars, 4)
+    ```
+
+```
+##                 mpg cyl disp  hp drat    wt  qsec vs am gear carb
+## Mazda RX4      21.0   6  160 110 3.90 2.620 16.46  0  1    4    4
+## Mazda RX4 Wag  21.0   6  160 110 3.90 2.875 17.02  0  1    4    4
+## Datsun 710     22.8   4  108  93 3.85 2.320 18.61  1  1    4    1
+## Hornet 4 Drive 21.4   6  258 110 3.08 3.215 19.44  1  0    3    1
 ```
 
 ## knitr chunk output
 
 `results = 'asis'`
 
-```{r asis, results = 'asis', verbatim = TRUE}
-head(mtcars, 4)
-```
+
+    ```{r asis, results = 'asis'}
+    head(mtcars, 4)
+    ```
+                mpg cyl disp  hp drat    wt  qsec vs am gear carb
+Mazda RX4      21.0   6  160 110 3.90 2.620 16.46  0  1    4    4
+Mazda RX4 Wag  21.0   6  160 110 3.90 2.875 17.02  0  1    4    4
+Datsun 710     22.8   4  108  93 3.85 2.320 18.61  1  1    4    1
+Hornet 4 Drive 21.4   6  258 110 3.08 3.215 19.44  1  0    3    1
 
 
 ## knitr chunk output
 
-### Make tables pretty with `knitr::kable` and `results = 'asis'`
+### Make tables pretty
 
-```{r kasis, results = 'asis'}
-kable(head(mtcars, 4), digits = 1, caption = "Motor Trend Cars, 1974")
-```
+`results = 'asis'`
 
-## Tables and other output {.smaller}
 
-Several other packages are available to customize table output:
+    ```{r kasis, results = 'asis'}
+    kable(head(mtcars, 4))
+    ```
 
-- `pander`: Good for printing output from regression models: 
 
-```{r pander, results = 'asis'}
-pander::pander(lm(mpg ~ factor(cyl), data = mtcars))
-```
+|               |  mpg| cyl| disp|  hp| drat|    wt|  qsec| vs| am| gear| carb|
+|:--------------|----:|---:|----:|---:|----:|-----:|-----:|--:|--:|----:|----:|
+|Mazda RX4      | 21.0|   6|  160| 110| 3.90| 2.620| 16.46|  0|  1|    4|    4|
+|Mazda RX4 Wag  | 21.0|   6|  160| 110| 3.90| 2.875| 17.02|  0|  1|    4|    4|
+|Datsun 710     | 22.8|   4|  108|  93| 3.85| 2.320| 18.61|  1|  1|    4|    1|
+|Hornet 4 Drive | 21.4|   6|  258| 110| 3.08| 3.215| 19.44|  1|  0|    3|    1|
 
-- `xtable`: endless customization to tables
-- `stargazer`: nice looking tables for multiple regression models
 
 ## Other options
 
@@ -213,57 +221,23 @@ pander::pander(lm(mpg ~ factor(cyl), data = mtcars))
 - `echo = FALSE` don't display results
 - `warning = FALSE` don't display warnings
 - `cache = TRUE` cache results for long-running stuff
-- `comment = NA` hide `#` from `markup` output
+- `comment = NA` hide `#` from output
 
 
 ## Figure options
 
 The important ones:
 
-- `fig.width`, `fig.height`, in inches. Can also be set globally in the header.
-- `fig.align`, left, right or center
-- `fig.cap = "Caption"` add caption to figure
-
-
-## Example figure
-
-```{r ggmt, fig.align = 'center', fig.height = 3.5, fig.width = 6.5, verbatim = TRUE}
-library(ggplot2)
-ggplot(mtcars, aes(x = disp, y = mpg, size = wt)) + 
-  geom_point() + geom_smooth(method = "loess")
-```
-
-## Example figure
-
-```{r basemt, fig.align = 'center', fig.height = 3.5, fig.width = 6.5, verbatim = TRUE}
-with(mtcars, hist(mpg))
-```
-
-
-## Try it!
-
-- Create a new rmarkdown document with an output format of your choice
-- Use the `BMI.CSV` dataset to perform some basic analysis
-- Display the data using `head`
-- Summarize the data
-- Do a t-test
-- Make a figure using ggplot
-- Make a table of regression coefficients
-- _Write about what you are doing along the way_
-
-## Summary
-
-- Analysis + report writing should be easy and integrated
-- knitr + rmarkdown + pandoc all in Rstudio
-- You don't have to remember everything, use the menus and help documents
-- Your future self will thank you for having a reproducible analysis
+- `fig_width`, `fig_height`, in inches. Can also be set globally.
+- `fig_align`, left, right or center
+- `fig_cap = "Caption"` add caption to figure
 
 
 ## Resources
 
  Topic | Link 
  ------|------
-KBroman's UWisc Class | https://kbroman.github.io/knitr_knutshell
+KBroman's UWisc Class | https://kbroman.github.io/Tools4RR/pages/schedule.html
 Knitr homepage | http://yihui.name/knitr/
 rmarkdown documentation | http://rmarkdown.rstudio.com/
 Another knitr tutorial | http://sachsmc.github.io/knit-git-markr-guide
